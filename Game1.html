@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Urutkan Kata Bahasa Inggris</title>
+<style>
+  body {
+    background-color: #006400; /* hijau tua */
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 20px;
+    color: #333;
+  }
+  .container {
+    background-color: #90ee90; /* hijau muda */
+    max-width: 700px;
+    margin: auto;
+    border-radius: 8px;
+    padding: 20px;
+  }
+  h1 {
+    text-align: center;
+    color: #004d00;
+  }
+  #word-pool {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 20px;
+  }
+  .word {
+    background-color: white;
+    padding: 8px 15px;
+    border-radius: 6px;
+    cursor: grab;
+    user-select: none;
+    font-weight: bold;
+    color: #006400;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  }
+  #answer-area {
+    background-color: white;
+    min-height: 50px;
+    border-radius: 6px;
+    padding: 10px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+  .answer-word {
+    background-color: #90ee90; /* hijau muda */
+    padding: 8px 15px;
+    border-radius: 6px;
+    font-weight: bold;
+    color: #004d00;
+    user-select: none;
+  }
+  #feedback {
+    margin-top: 20px;
+    font-size: 18px;
+    font-weight: bold;
+  }
+  button {
+    margin-top: 20px;
+    padding: 10px 18px;
+    border: none;
+    background-color: #004d00;
+    color: white;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 16px;
+  }
+  button:hover {
+    background-color: #006400;
+  }
+</style>
+</head>
+<body>
+  <div class="container">
+    <h1>Urutkan Kata Bahasa Inggris</h1>
+    <p>Drag kata-kata di bawah ini ke area kosong untuk menyusun kalimat yang benar.</p>
+    <div id="word-pool" aria-label="Kata-kata yang bisa dipindah"></div>
+    <div id="answer-area" aria-label="Area untuk mengurutkan kata-kata" ondragover="event.preventDefault()"></div>
+    <button onclick="checkAnswer()">Cek Jawaban</button>
+    <div id="feedback" role="alert"></div>
+  </div>
+
+<script>
+  // Kata asli
+  const originalWords = ['I', 'am', 'going', 'to', 'the', 'market'];
+  
+  // Tempat kata acak
+  const wordPool = document.getElementById('word-pool');
+  const answerArea = document.getElementById('answer-area');
+  const feedback = document.getElementById('feedback');
+  
+  // Fungsi untuk acak array
+  function shuffle(array) {
+    let currentIndex = array.length, randomIndex;
+    while (currentIndex !== 0) {
+      randomIndex = Math.floor(Math.random() * currentIndex);
+      currentIndex--;
+      [array[currentIndex], array[randomIndex]] = [array[randomIndex], array[currentIndex]];
+    }
+    return array;
+  }
+
+  // Render kata acak di pool
+  function renderWordPool() {
+    wordPool.innerHTML = '';
+    shuffledWords.forEach(word => {
+      const span = document.createElement('span');
+      span.textContent = word;
+      span.className = 'word';
+      span.setAttribute('draggable', 'true');
+      span.id = 'word-' + word; // id unik per kata
+      span.addEventListener('dragstart', dragStart);
+      wordPool.appendChild(span);
+    });
+  }
+
+  // Drag & Drop Handlers
+  function dragStart(e) {
+    e.dataTransfer.setData('text/plain', e.target.id);
+  }
+
+  answerArea.addEventListener('drop', e => {
+    e.preventDefault();
+    const draggedId = e.dataTransfer.getData('text/plain');
+    const draggedElem = document.getElementById(draggedId);
+
+    if (draggedElem) {
+      // Hapus dari pool
+      draggedElem.style.display = 'none';
+
+      // Tambah di answer area sebagai span yang tidak bisa drag lagi
+      const newSpan = document.createElement('span');
+      newSpan.textContent = draggedElem.textContent;
+      newSpan.className = 'answer-word';
+      answerArea.appendChild(newSpan);
+    }
+  });
+
+  // Cek jawaban
+  function checkAnswer() {
+    const answerWords = Array.from(answerArea.children).map(span => span.textContent);
+    const userAnswer = answerWords.join('-');
+    const correctAnswer = originalWords.join('-');
+    
+    if (userAnswer === correctAnswer) {
+      feedback.textContent = 'hebat jawaban anda benar';
+      feedback.style.color = 'green';
+    } else {
+      feedback.textContent = 'maaf jawaban anda salah, silahkan ulangi lagi';
+      feedback.style.color = 'red';
+    }
+  }
+
+  // Inisialisasi
+  let shuffledWords = shuffle([...originalWords]);
+  renderWordPool();
+</script>
+</body>
+</html>
