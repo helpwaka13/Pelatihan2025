@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Susun Kalimat Bahasa Inggris</title>
+  <style>
+    body {
+      background-color: yellow; /* 14: background layar */
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+    }
+
+    .container {
+      background-color: pink; /* 12: skin soal */
+      padding: 20px;
+      border-radius: 10px;
+      max-width: 800px;
+      margin: auto;
+    }
+
+    .word-bank {
+      margin-top: 10px;
+    }
+
+    .word {
+      display: inline-block;
+      padding: 10px 15px;
+      margin: 5px;
+      background-color: #eee;
+      border: 1px solid #aaa;
+      border-radius: 5px;
+      cursor: move;
+    }
+
+    #drop-area {
+      background-color: #add8e6; /* 13: biru muda */
+      min-height: 60px;
+      padding: 10px;
+      border: 2px dashed #000;
+      border-radius: 8px;
+      margin-top: 20px;
+    }
+
+    button {
+      margin: 10px 5px 0 0;
+      padding: 10px 15px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+
+    #feedback {
+      margin-top: 15px;
+      font-weight: bold;
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <h2>Susun Kata Menjadi Kalimat</h2>
+
+    <div class="word-bank" id="word-bank"></div>
+
+    <div id="drop-area" ondrop="drop(event)" ondragover="allowDrop(event)">
+      <!-- Kata yang di-drop akan muncul di sini -->
+    </div>
+
+    <div class="controls">
+      <button onclick="checkAnswer()">Hasil</button>
+      <button onclick="resetSentence()">Reset</button>
+      <button onclick="prevSentence()">Previous</button>
+      <button onclick="nextSentence()">Next</button>
+    </div>
+
+    <div id="feedback"></div>
+  </div>
+
+  <script>
+    // 2: Kalimat-kalimat
+    const sentences = [
+      ["I", "am", "going", "to", "the", "market"],
+      ["I", "will", "go", "to", "the", "mountain"],
+      ["I", "will", "play", "football", "tomorrow"],
+      ["I", "am", "speaking", "english"],
+      ["I", "went", "to", "the", "zoo", "yesterday"]
+    ];
+
+    let currentIndex = 0;
+
+    function shuffle(array) {
+      const arr = [...array];
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function renderSentence() {
+      const wordBank = document.getElementById("word-bank");
+      const dropArea = document.getElementById("drop-area");
+      const feedback = document.getElementById("feedback");
+
+      wordBank.innerHTML = "";
+      dropArea.innerHTML = "";
+      feedback.innerText = "";
+
+      const words = shuffle(sentences[currentIndex]);
+
+      words.forEach((word, index) => {
+        const span = document.createElement("span");
+        span.className = "word";
+        span.innerText = word;
+        span.draggable = true;
+        span.id = `word-${index}`;
+        span.ondragstart = drag;
+        wordBank.appendChild(span);
+      });
+    }
+
+    function allowDrop(event) {
+      event.preventDefault();
+    }
+
+    function drag(event) {
+      event.dataTransfer.setData("text", event.target.id);
+    }
+
+    function drop(event) {
+      event.preventDefault();
+      const id = event.dataTransfer.getData("text");
+      const word = document.getElementById(id);
+      if (word) {
+        event.target.appendChild(word);
+        word.draggable = false;
+        word.style.cursor = "default";
+      }
+    }
+
+    function getUserAnswer() {
+      const dropArea = document.getElementById("drop-area");
+      return Array.from(dropArea.children).map(word => word.innerText.trim());
+    }
+
+    function checkAnswer() {
+      const userAnswer = getUserAnswer();
+      const correctAnswer = sentences[currentIndex];
+      const feedback = document.getElementById("feedback");
+
+      if (userAnswer.length !== correctAnswer.length) {
+        feedback.innerText = "Ma’af jawaban anda salah, ulangi lagi";
+        feedback.style.color = "red";
+        return;
+      }
+
+      const isCorrect = userAnswer.every((word, idx) => word === correctAnswer[idx]);
+
+      if (isCorrect) {
+        feedback.innerText = "Hebat jawaban anda benar";
+        feedback.style.color = "green";
+      } else {
+        feedback.innerText = "Ma’af jawaban anda salah, ulangi lagi";
+        feedback.style.color = "red";
+      }
+    }
+
+    function resetSentence() {
+      renderSentence();
+    }
+
+    function nextSentence() {
+      if (currentIndex < sentences.length - 1) {
+        currentIndex++;
+        renderSentence();
+      }
+    }
+
+    function prevSentence() {
+      if (currentIndex > 0) {
+        currentIndex--;
+        renderSentence();
+      }
+    }
+
+    // Inisialisasi
+    renderSentence();
+  </script>
+
+</body>
+</html>
